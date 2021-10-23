@@ -1,60 +1,99 @@
-import express, {Request, Response, NextFunction} from 'express'
-import { FoodDoc, Vendor } from '../models'
+import express, { Request, Response, NextFunction } from "express";
+import { FoodDoc, Vendor } from "../models";
 
-export const GetFoodAvailability = async (req: Request, res: Response, next: NextFunction) => {
+export const GetFoodAvailability = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const pincode = req.params.pincode;
 
-    const pincode = req.params.pincode
+  const result = await Vendor.find({
+    pincode: pincode,
+    serviceAvailable: false,
+  })
+    .sort([["rating", "descending"]])
+    .populate("foods");
 
-    const result = await Vendor.find({pincode: pincode, serviceAvailable: false}).sort([['rating', 'descending']]).populate("foods")
+  if (result.length > 0) {
+    return res.status(200).json(result);
+  }
 
-    if(result.length > 0){
-        return res.status(200).json(result)
-    }
+  return res.status(400).json({ message: "Data Not Found" });
+};
 
-    return res.status(400).json({message: "Data Not Found"})
+export const GetTopRestaurants = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const pincode = req.params.pincode;
 
-}
+  const result = await Vendor.find({
+    pincode: pincode,
+    serviceAvailable: false,
+  })
+    .sort([["rating", "descending"]])
+    .limit(10);
 
-export const GetTopRestaurants = async (req: Request, res: Response, next: NextFunction) => {
+  if (result.length > 0) {
+    return res.status(200).json(result);
+  }
 
-    const pincode = req.params.pincode
+  return res.status(400).json({ message: "Data Not Found" });
+};
 
-    const result = await Vendor.find({pincode: pincode, serviceAvailable: false}).sort([['rating', 'descending']]).limit(10)
+export const GetFoodsIn30Min = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const pincode = req.params.pincode;
 
-    if(result.length > 0){
-        return res.status(200).json(result)
-    }
+  const result = await Vendor.find({
+    pincode: pincode,
+    serviceAvailable: false,
+  }).populate("foods");
 
-    return res.status(400).json({message: "Data Not Found"})
+  if (result.length > 0) {
+    let foodResult: any = [];
 
-}
+    result.map((vendor) => {
+      const foods = vendor.foods as [FoodDoc];
+      foodResult.push(...foods.filter((food) => food.readyTime < 30));
+    });
 
-export const GetFoodsIn30Min = async (req: Request, res: Response, next: NextFunction) => {
+    return res.status(200).json(foodResult);
+  }
 
-    const pincode = req.params.pincode
+  return res.status(400).json({ message: "Data Not Found" });
+};
 
-    const result = await Vendor.find({pincode: pincode, serviceAvailable: false}).populate("foods")
+export const SearchFoods = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const pincode = req.params.pincode;
 
-    if(result.length > 0){
+  const result = await Vendor.find({
+    pincode: pincode,
+    serviceAvailable: false,
+  }).populate("foods");
 
-        let foodResult: any = []
+  if (result.length > 0) {
+    let foodResult: any = [];
 
-        result.map(vendor => {
-            const foods = vendor.foods as [FoodDoc]
-            foodResult.push(...foods.filter(food => food.readyTime < 30))
-        })
+    result.map( item => foodResult.push(...item.foods))
 
-        return res.status(200).json(foodResult)
-    }
+    return res.status(200).json(foodResult);
+  }
 
-    return res.status(400).json({message: "Data Not Found"})
+  return res.status(400).json({ message: "Data Not Found" });
+};
 
-}
-
-export const SearchFoods = async (req: Request, res: Response, next: NextFunction) => {
-
-}
-
-export const RestaurantById = async (req: Request, res: Response, next: NextFunction) => {
-
-}
+export const RestaurantById = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {};
