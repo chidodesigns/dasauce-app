@@ -1,5 +1,6 @@
 import express from 'express'
 import mongoose from 'mongoose'
+import path from 'path'
 import { MONGO_URI } from './config';
 import {AdminRoute, VendorRoute} from './routes'
 
@@ -9,6 +10,8 @@ app.use(express.json());
 app.use(express.urlencoded({
   extended: true
 }));
+
+app.use('/images', express.static(path.join(__dirname, 'images')))
 
 app.use('/admin', AdminRoute)
 app.use('/vendor', VendorRoute)
