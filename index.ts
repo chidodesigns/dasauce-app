@@ -1,26 +1,14 @@
 import express from 'express'
-import mongoose from 'mongoose'
-import path from 'path'
-import { MONGO_URI } from './config';
-import {AdminRoute, VendorRoute} from './routes'
+import App from './services/ExpressApp'
+import dbConnection from './services/Database'
 
-const app = express()
+const StartServer = async () => {
+  const app = express()
+  await dbConnection()
+  await App(app)
+  app.listen(8000, () => {
+    console.log('Listening to port 8000')
+  })
+}
 
-app.use(express.json());
-app.use(express.urlencoded({
-  extended: true
-}));
-
-app.use('/images', express.static(path.join(__dirname, 'images')))
-
-app.use('/admin', AdminRoute)
-app.use('/vendor', VendorRoute)
-
-mongoose.connect(MONGO_URI).then(result => {
-  console.log("MongoDb Connected...")
-}).catch(err  => console.log('error' + err))
-
-app.listen(8000, () => {
-    console.clear()
-    console.log("App is listening to the port 8000")
-})
+StartServer()
