@@ -152,7 +152,23 @@ export const RequestOtp = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {};
+) => {
+    const customer = req.user
+    if(customer){
+        const profile = await Customer.findById(customer._id)
+        if(profile){
+            const { otp, expiry} = await GenerateOtp()
+            profile.otp_expiry = expiry
+
+            await profile.save()
+
+            await OnRequestOTP(otp, profile.phone)
+
+            res.status(200).json({message: "OTP sent your registered number"})
+        }
+    }
+    return res.status(400).json({ message: "Error With Request OTP" });
+};
 
 export const GetCustomerProfile = async (
   req: Request,
