@@ -1,7 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import { validate } from "class-validator";
 import { plainToClass } from "class-transformer";
-import { CreateCustomerInput, UserLoginInputs } from "../dto/Customer.dto";
+import { CreateCustomerInput, UserLoginInputs, EditCustomerProfileInputs} from "../dto/Customer.dto";
 import { GeneratePassword, GenerateSalt } from "../utility";
 import { Customer } from "../models/Customer";
 import { GenerateOtp, OnRequestOTP } from "../utility/NotificationUtility";
@@ -174,10 +174,50 @@ export const GetCustomerProfile = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {};
+) => {
+    const customer = req.user
+
+    if(customer){
+        const profile = await Customer.findById(customer._id)
+        if(profile){
+
+           return res.status(200).json(profile)
+        }
+    }
+
+    return res.status(400).json({message: "Error with getting profile"})
+
+};
 
 export const EditCustomerProfile = async (
   req: Request,
   res: Response,
   next: NextFunction
-) => {};
+) => {
+    const customer = req.user
+
+    const profileInputs = plainToClass(EditCustomerProfileInputs , req.body)
+
+    const profileErrors = await validate(profileInputs, {validationError: {target: false}})
+
+    const { firstName, lastName, address } = profileInputs
+
+    if(profileErrors.length > 0){
+        return res.status(400).json(profileErrors)
+    }
+
+    if(customer){
+        const profile = await Customer.findById(customer._id)
+        if(profile){
+
+            profile.firstName = firstName
+            profile.lastName = lastName
+            profile.address = address
+        
+            const result = await profile.save()
+
+            res.status(200).json(result)
+        }
+    }
+
+};
