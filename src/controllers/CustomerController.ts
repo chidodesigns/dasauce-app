@@ -282,11 +282,27 @@ export const AddToCart = async (req: Request, res: Response, next: NextFunction)
 }
 
 export const GetCart = async (req: Request, res: Response, next: NextFunction) => {
-  
+    const customer = req.user 
+    if(customer){
+      const profile = await Customer.findById(customer._id).populate('cart.food')
+      if(profile){
+        return res.status(200).json(profile.cart)
+      }
+    }
+    return res.status(400).json({message: 'Cart Is Empty'})
 }
 
 export const DeleteCart = async (req: Request, res: Response, next: NextFunction) => {
-  
+  const customer = req.user 
+  if(customer){
+    const profile = await Customer.findById(customer._id).populate('cart.food')
+    if(profile != null){
+      profile.cart = [] as any
+      const cartResult = await profile.save()
+      return res.status(200).json(cartResult)
+    }
+  }
+  return res.status(400).json({message: 'Cart Is Already Empty'})
 }
 
 export const CreateOrder =  async (req: Request, res: Response, next: NextFunction) => {
