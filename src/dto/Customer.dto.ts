@@ -36,3 +36,11 @@ export interface CustomerPayload{
     email: string;
     verified: string;
 }
+
+export class OrderInputs {
+
+    _id: string
+
+    unit: number
+
+}

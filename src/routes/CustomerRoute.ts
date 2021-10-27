@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction} from 'express';
-import { CustomerSignUp, CustomerLogin, CustomerVerify, RequestOtp, GetCustomerProfile, EditCustomerProfile } from '../controllers/CustomerController';
+import { CustomerSignUp, CustomerLogin, CustomerVerify, RequestOtp, GetCustomerProfile, EditCustomerProfile, CreateOrder, GetOrders, GetOrdersById } from '../controllers/CustomerController';
 import { Authenticate } from '../middlewares/CommonAuth';
 
 const router = express.Router()
@@ -19,8 +19,12 @@ router.get('/otp', RequestOtp)
 router.get('/profile', GetCustomerProfile)
 router.patch('/profile', EditCustomerProfile)
 
-//  Cart
 //  Order
+router.post('/create-order', CreateOrder)
+router.get('/orders', GetOrders)
+router.get('/order/:id', GetOrdersById)
+
+//  Cart
 //  Payment
 
 export { router as CustomerRoute}
