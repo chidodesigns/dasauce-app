@@ -12,11 +12,13 @@ export default async (app: Application) => {
     })
   );
 
-  app.use("/images", express.static(path.join(__dirname, "images")));
+  const imagePath = path.join(__dirname, '../images')
+
+  app.use("/images", express.static(imagePath));
 
   app.use("/admin", AdminRoute);
   app.use("/vendor", VendorRoute);
-  app.use('/customer', CustomerRoute)
+  app.use("/customer", CustomerRoute)
   app.use(ShoppingRoute)
 
   return app

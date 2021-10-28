@@ -321,12 +321,15 @@ export const CreateOrder =  async (req: Request, res: Response, next: NextFuncti
 
     let netAmount = 0.0
 
+    let vendorId;
+
     //  Calculate Order Amount 
     const foods = await Food.find().where('_id').in(cart.map(item => item._id)).exec()
 
     foods.map( food => {
       cart.map(({_id, unit}) => {
         if (food._id == _id){
+          vendorId = food.vendorId
           netAmount += (food.price * unit)
           cartItems.push({food, unit})
         }
@@ -338,22 +341,28 @@ export const CreateOrder =  async (req: Request, res: Response, next: NextFuncti
         //  Create Order 
         const currentOrder = await Order.create({
           orderID: orderId,
+          vendorId: vendorId,
           items: cartItems,
           totalAmount: netAmount,
           orderDate: new Date(),
           paidThrough: 'COD',
           paymentResponse: '',
-          orderStatus: 'Waiting'
+          orderStatus: 'Waiting',
+          remarks: '',
+          deliveryId: '',
+          appliedOffer: false,
+          offerId: null,
+          readyTime: 45,
         })
-        if(currentOrder){
+        // if(currentOrder){
+          profile.cart = [] as any
           profile.orders.push(currentOrder)
-          // const profileResponse = await profile.save()
-          await profile.save()
-          return res.status(200).json(currentOrder)
-        }
+          const profileSaveResponse = await profile.save()
+          // await profile.save()
+          return res.status(200).json(profileSaveResponse)
+        // }
     }
-    //  Finally Update Orders To User Account 
-
+    
   }
   return res.status(400).json({message: "Error With Create Order"})  
 
