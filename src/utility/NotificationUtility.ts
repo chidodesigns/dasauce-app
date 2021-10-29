@@ -28,7 +28,7 @@ export const OnRequestOTP = async (otp:Number, toPhoneNumber:String) => {
         from: '+16627802223',
         to: `+44${toPhoneNumber}`,
     })
-
+    console.log(response)
     return response
 }
 

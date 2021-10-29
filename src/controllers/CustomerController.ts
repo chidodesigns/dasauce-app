@@ -170,8 +170,9 @@ export const RequestOtp = async (
 
             res.status(200).json({message: "OTP sent your registered number"})
         }
+    }else{
+      res.status(400).json({ message: "Error With Request OTP" });
     }
-     res.status(400).json({ message: "Error With Request OTP" });
 };
 
 export const GetCustomerProfile = async (
