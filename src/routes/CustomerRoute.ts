@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction} from 'express';
-import { CustomerSignUp, CustomerLogin, CustomerVerify, RequestOtp, GetCustomerProfile, EditCustomerProfile, CreateOrder, GetOrders, GetOrderById, VerifyOffer, AddToCart, GetCart, DeleteCart} from '../controllers/CustomerController';
+import { CustomerSignUp, CustomerLogin, CustomerVerify, RequestOtp, GetCustomerProfile, EditCustomerProfile, CreateOrder, GetOrders, GetOrderById, VerifyOffer, CreatePayment, AddToCart, GetCart, DeleteCart} from '../controllers/CustomerController';
 import { Authenticate } from '../middlewares/CommonAuth';
 
 const router = express.Router()
@@ -33,5 +33,6 @@ router.get('/orders', GetOrders)
 router.get('/order/:id', GetOrderById)
 
 //  Payment
+router.post('/create-payment', CreatePayment)
 
 export { router as CustomerRoute}
