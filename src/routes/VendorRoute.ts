@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction} from 'express'
-import {AddFood, GetFoods, GetVendorProfile, UpdateVendorProfile, UpdateVendorService, VendorLogin, UpdateVendorCoverImage, GetOrders, ProcessOrder, GetCurrentOrders, GetOrderDetails, GetOffers, AddOffer,  EditOffer} from '../controllers'
+import {AddFood, GetFoods, GetVendorProfile, UpdateVendorProfile, UpdateVendorService, VendorLogin, UpdateVendorCoverImage, ProcessOrder, GetCurrentOrders, GetOrderDetails, GetOffers, AddOffer,  EditOffer} from '../controllers'
 import { Authenticate } from '../middlewares'
 const multer = require('multer')
 
