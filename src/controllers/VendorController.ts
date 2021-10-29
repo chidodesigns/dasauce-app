@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
-import { Food } from "../models";
+import { Food, Offer } from "../models";
 import { FindVendor } from "./AdminController";
-import { CreateFoodInput, EditVendorInput, VendorLoginInputs } from "../dto";
+import { CreateFoodInput, CreateOfferInputs, EditVendorInput, VendorLoginInputs } from "../dto";
 import { GenerateSignature, ValidatePassword } from "../utility";
 import { Order } from "../models/Order";
 
@@ -238,5 +238,52 @@ export const ProcessOrder = async (req: Request, res: Response, next: NextFuncti
   }
 
   return res.json({"message": "Unable To Process Order"})
+
+}
+
+export const GetOffers = async (req: Request, res: Response, next: NextFunction) => {
+
+
+
+}
+
+export const AddOffer = async (req: Request, res: Response, next: NextFunction) => {
+
+  const user = req.user
+
+  if(user){
+
+    const { title,  description, offerType, offerAmount, pincode, promocode, promoType, startValidity, endValidity, bank, bins, minValue, isActive} = <CreateOfferInputs>req.body
+
+    const vendor = await FindVendor(user._id)
+
+    if(vendor){
+      const offer = await Offer.create({
+        title, 
+        description, 
+        offerType, 
+        offerAmount, 
+        pincode,
+        promocode,
+        promoType,
+        startValidity,
+        endValidity,
+        bank,
+        bins,
+        isActive, 
+        minValue, 
+        vendors:[vendor]
+      })
+      console.log(offer)
+      return res.status(200).json(offer)
+    }
+
+  }
+  return res.json({"message": "Unable To Add Offer"})
+}
+
+export const EditOffer = async (req: Request, res: Response, next: NextFunction) => {
+
+  
 
 }
