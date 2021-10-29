@@ -6,7 +6,7 @@ import { GeneratePassword, GenerateSalt } from "../utility";
 import { Customer } from "../models/Customer";
 import { GenerateOtp, OnRequestOTP } from "../utility/NotificationUtility";
 import { GenerateSignature, ValidatePassword } from '../utility/PasswordUtility';
-import { Food } from "../models";
+import { Food, Offer } from "../models";
 import { Order } from "../models/Order";
 
 export const CustomerSignUp = async (
@@ -383,14 +383,38 @@ export const GetOrders = async (req: Request, res: Response, next: NextFunction)
   }
 }
 
-export const GetOrdersById = async (req: Request, res: Response, next: NextFunction) => {
-
+export const GetOrderById = async (req: Request, res: Response, next: NextFunction) => {
+  
   const orderId = req.params.id
 
   if(orderId){
-    const order = await (await Order.findById(orderId)).populate('items.food')
+    const order = await Order.findById(orderId).populate('items.food')
 
     res.status(200).json(order)
   }
 
+}
+
+//  Offers
+export const VerifyOffer = async (req: Request, res:Response, next: NextFunction) => {
+
+  const offerId = req.params.id
+  const customer = req.user
+
+  if(customer){
+    const appliedOffer = await Offer.findById(offerId)
+    if(appliedOffer){
+
+      if(appliedOffer.promoType === "USER"){
+        //  Only can apply once via user
+      }else{
+        if(appliedOffer.isActive){
+          return res.status(200).json({message: "Offer Is Valid", offer: appliedOffer})
+        }
+      }
+
+  
+    }
+  }
+  return res.status(400).json({message: "Offer is not valid"})
 }

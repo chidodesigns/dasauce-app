@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction} from 'express';
-import { CustomerSignUp, CustomerLogin, CustomerVerify, RequestOtp, GetCustomerProfile, EditCustomerProfile, CreateOrder, GetOrders, GetOrdersById, AddToCart, GetCart, DeleteCart} from '../controllers/CustomerController';
+import { CustomerSignUp, CustomerLogin, CustomerVerify, RequestOtp, GetCustomerProfile, EditCustomerProfile, CreateOrder, GetOrders, GetOrderById, VerifyOffer, AddToCart, GetCart, DeleteCart} from '../controllers/CustomerController';
 import { Authenticate } from '../middlewares/CommonAuth';
 
 const router = express.Router()
@@ -24,10 +24,13 @@ router.post('/cart', AddToCart)
 router.get('/cart', GetCart)
 router.delete('/cart', DeleteCart)
 
+//  Apply Offers
+router.get('/offer/verify/:id', VerifyOffer)
+
 //  Order
 router.post('/create-order', CreateOrder)
 router.get('/orders', GetOrders)
-router.get('/order/:id', GetOrdersById)
+router.get('/order/:id', GetOrderById)
 
 //  Payment
 
