@@ -37,10 +37,15 @@ export interface CustomerPayload{
     verified: string;
 }
 
+export class CartItem{
+    _id: string;
+    unit: number
+}
+
 export class OrderInputs {
 
-    _id: string
-
-    unit: number
+    transactionId: string;
+    amount: string;
+    items: [CartItem]
 
 }
