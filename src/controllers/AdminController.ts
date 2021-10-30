@@ -41,6 +41,8 @@ export const CreateVendor = async (req:Request, res:Response, next:NextFunction)
         serviceAvailable: false,
         coverImages: [],
         foods: [],
+        lat: 0,
+        lng: 0
     })
 
     return res.json(createdVendor)
