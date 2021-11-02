@@ -6,8 +6,9 @@ import { GeneratePassword, GenerateSalt } from "../utility";
 import { Customer } from "../models/Customer";
 import { GenerateOtp, OnRequestOTP } from "../utility/NotificationUtility";
 import { GenerateSignature, ValidatePassword } from '../utility/PasswordUtility';
-import { Food, Offer, Transaction } from "../models";
+import { Food, Offer, Transaction, Vendor } from "../models";
 import { Order } from "../models/Order";
+import { DeliveryUser } from "../models/DeliveryUser";
 
 export const CustomerSignUp = async (
   req: Request,
@@ -340,6 +341,42 @@ export const CreatePayment = async (req: Request, res: Response, next: NextFunct
   return res.status(200).json(transaction)
 }
 
+//  Delivery Notification 
+const assignOrderForDelivery = async(orderId: string, vendorId: string) => {
+  //  Find The Vendor 
+  const vendor = await Vendor.findById(vendorId)
+
+  if(vendor){
+    const areaCode = vendor.pincode;
+    const vendorLat = vendor.lat;
+    const vendorLng = vendor.lng
+  
+  //  Find The Available Delivery Person
+  const deliveryPersons = await DeliveryUser.find({pincode: areaCode, verified: true, isAvailable: true})
+  console.log(deliveryPersons)
+  if(deliveryPersons){
+      console.log(`Delivery Person ${deliveryPersons[0]}`)
+      //  Check the nearest delivery person and assign the order  (Google API)
+
+      const currentOrder = await Order.findById(orderId)
+
+      if(currentOrder){
+        //  Update Delivery ID
+        currentOrder.deliveryId = deliveryPersons[0]._id
+        //  Current Order Delivery
+        const response = await currentOrder.save()
+     
+        //  Notify to Vendor for recieved New Order using Firebase Push Notification
+      }
+  }
+
+  }
+
+
+
+  //  update deliveryID
+}
+
 //  Order Section
 
 const validateTransaction = async (transactionId: string) => {
@@ -398,6 +435,7 @@ export const CreateOrder =  async (req: Request, res: Response, next: NextFuncti
         const currentOrder = await Order.create({
           orderID: orderId,
           vendorId: vendorId,
+          transactionId: transactionId,
           items: cartItems,
           totalAmount: netAmount,
           paidAmount: amount,
@@ -417,9 +455,11 @@ export const CreateOrder =  async (req: Request, res: Response, next: NextFuncti
 
           await currentTransaction.save()
 
+          assignOrderForDelivery(currentOrder._id, vendorId)
+
           const profileSaveResponse = await profile.save()
         
-          return res.status(200).json(profileSaveResponse)
+          return res.status(200).json(currentOrder)
   
     }
     

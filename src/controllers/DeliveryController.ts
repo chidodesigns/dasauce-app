@@ -6,15 +6,13 @@ import {
   EditCustomerProfileInputs,
 } from "../dto/Customer.dto";
 import { GeneratePassword, GenerateSalt } from "../utility";
-import { Customer } from "../models/Customer";
-import { OnRequestOTP } from "../utility/NotificationUtility";
+
 import {
   GenerateSignature,
   ValidatePassword,
 } from "../utility/PasswordUtility";
 import { CreateDeliveryUserInputs } from "../dto/Delivery.dto";
 import { DeliveryUser } from "../models/DeliveryUser";
-
 
 export const DeliveryUserSignUp = async (
   req: Request,
@@ -31,7 +29,8 @@ export const DeliveryUserSignUp = async (
     return res.status(400).json(inputErrors);
   }
 
-  const { email, phone, password, address, firstName, lastName, pincode } = deliveryUserInputs;
+  const { email, phone, password, address, firstName, lastName, pincode } =
+    deliveryUserInputs;
 
   const salt = await GenerateSalt();
   const userPassword = await GeneratePassword(password, salt);
@@ -52,14 +51,14 @@ export const DeliveryUserSignUp = async (
     firstName: firstName,
     lastName: lastName,
     address: address,
+    pincode: pincode,
     verified: false,
     lat: 0,
     lng: 0,
-    isAvailable: false
+    isAvailable: false,
   });
 
   if (result) {
-  
     //  Generate The Signature
     const signature = GenerateSignature({
       _id: result._id,
@@ -127,16 +126,16 @@ export const GetDeliveryUserProfile = async (
   res: Response,
   next: NextFunction
 ) => {
-//   const customer = req.user;
+  const deliveryUser = req.user;
 
-//   if (customer) {
-//     const profile = await Customer.findById(customer._id);
-//     if (profile) {
-//       return res.status(200).json(profile);
-//     }
-//   }
+  if (deliveryUser) {
+    const profile = await DeliveryUser.findById(deliveryUser._id);
+    if (profile) {
+      return res.status(200).json(profile);
+    }
+  }
 
-//   return res.status(400).json({ message: "Error with getting profile" });
+  return res.status(400).json({ message: "Error with getting profile" });
 };
 
 export const EditDeliveryUserProfile = async (
@@ -144,37 +143,76 @@ export const EditDeliveryUserProfile = async (
   res: Response,
   next: NextFunction
 ) => {
-  const customer = req.user;
-
+  const deliveryUser = req.user;
   const profileInputs = plainToClass(EditCustomerProfileInputs, req.body);
-
   const profileErrors = await validate(profileInputs, {
     validationError: { target: false },
   });
-
   const { firstName, lastName, address } = profileInputs;
-
   if (profileErrors.length > 0) {
     return res.status(400).json(profileErrors);
   }
-
-  if (customer) {
-    const profile = await Customer.findById(customer._id);
+  if (deliveryUser) {
+    const profile = await DeliveryUser.findById(deliveryUser._id);
     if (profile) {
       profile.firstName = firstName;
       profile.lastName = lastName;
       profile.address = address;
-
       const result = await profile.save();
-
       res.status(200).json(result);
     }
   }
+  return res
+    .status(400)
+    .json({ message: "Error with fetching Delivery User profile" });
 };
 
-export const UpdateDeliveryUserStatus = async (req: Request, res:Response, next: NextFunction) => {
+export const UpdateDeliveryUserStatus = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const deliveryUser = req.user;
+  if (deliveryUser) {
+    const { lat, lng } = req.body;
+    const profile = await DeliveryUser.findById(deliveryUser._id);
+    if (profile) {
+      if (lat && lng) {
+        profile.lat = lat;
+        profile.lng = lng;
+      }
+      profile.isAvailable = !profile.isAvailable;
+      const result = await profile.save();
+      return res.status(200).json(result);
+    }
+  }
+  return res.status(400).json({ message: "Error with Update Status" });
+};
 
-
-
-
+export const VerifyDeliveryUser = async (  req: Request,
+    res: Response,
+    next: NextFunction) => {
+    const {_id, status} = req.body
+    if(_id){
+        const profile = await DeliveryUser.findById(_id)
+        if(profile){
+            profile.verified = status
+            const result = await profile.save()
+            return res.status(200).json(result)
+        }
+    }
+    return res.status(400).json({"message": "Unable to verify Delivery User"})
 }
+
+export const GetDeliveryUsers = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const deliveryUsers = await DeliveryUser.find();
+  if (deliveryUsers) {
+    return res.status(200).json(deliveryUsers);
+  }
+
+  return res.status(400).json({ message: "Unable To Get Delivery Users   " });
+};

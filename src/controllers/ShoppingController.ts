@@ -112,9 +112,9 @@ export const RestaurantById = async (
 
 export const GetAvailableOffers = async (req:Request, res:Response, next:NextFunction) => {
   const pincode = req.params.pincode
-  console.log(pincode)
+
   const offers = await Offer.find({ pincode: pincode, isActive: true })
-  console.log(offers)
+
   if(offers){
     return res.status(200).json(offers)
   }

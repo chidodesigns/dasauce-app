@@ -48,6 +48,6 @@ router.get("/orders", GetOrders);
 router.get("/order/:id", GetOrderById);
 
 //  Payment
-router.post("create-payment", CreatePayment);
+router.post("/create-payment", CreatePayment);
 
 export { router as CustomerRoute };

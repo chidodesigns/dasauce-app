@@ -3,6 +3,7 @@ import mongoose, { Schema, Document } from "mongoose";
 export interface OrderDoc extends Document {
   orderID: string, // 5948764
   vendorId: string,
+  transactionId: string
   items: [any], //  [{ food, unit: 1}]
   totalAmount: number, //456
   paidAmount: number,
@@ -17,6 +18,7 @@ const OrderSchema = new Schema(
   {
     orderID: { type: String, required: true },
     vendorId: { type: String, required: true},
+    transactionId: { type: String, required: true},
     items: [
       {
         food: { type: Schema.Types.ObjectId, ref: "food", required: true },
